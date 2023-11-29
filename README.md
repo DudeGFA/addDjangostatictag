@@ -6,6 +6,7 @@ Python scripts that adds Django static tag to:
 - poster html attributes        
 - url() reference       
 
+### Supports both double and single quotes
 ### Skips lines that reference files on the web and don't require static tag
 
 Usage:
