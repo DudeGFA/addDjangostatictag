@@ -48,39 +48,41 @@ while True:
     if not line:
         break
     joined_line = line
+    lower_line = line.lower()
     try:
         # Checks for url() reference
-        if 'url(' in line and not ('http' in line or 'www' in line):
+        if 'url(' in lower_line and not ('http' in lower_line or 'www' in lower_line):
             # path_idx is the beginning of the url path
-            path_idx = line.index('url(') + 4
+            path_idx = lower_line.index('url(') + 4
             # path_end_idx is the end of the url path + 1
-            path_end_idx = line.index(')')
+            path_end_idx = lower_line.index(')')
             # Add static tag to the url path
             joined_line = line[:path_idx] + "{% static \'" + line[path_idx:path_end_idx] + "\' %}" + line[path_end_idx:]
 
-        if 'src=' in line or 'href=' in line or 'poster=' in line:
+        if 'src=' in lower_line or 'href=' in lower_line or 'poster=' in lower_line:
             # skips href, src and poster attributes that reference files on the web
             # also skips lines already containing a django tag
-            if 'http' in line or 'www' in line or '{%' in line:
+            if 'http' in lower_line or 'www' in lower_line or '{%' in lower_line:
                 file2.write(joined_line)
                 continue
             # splits the line by an '=' sign
             split_line = line.split('=')
+            lower_split_line = split_line.lower()
             # loops through each part of the split line
             for i in range(len(split_line)):
                 # finds piece of the split line containing src, href or poster attributes
                 # and edit the next piece of the split line because it contains
                 # the static file reference
-                if 'src' in split_line[i] or 'href' in split_line[i] or 'poster' in split_line[i]:
+                if 'src' in lower_split_line[i] or 'href' in lower_split_line[i] or 'poster' in lower_split_line[i]:
                     # skips if src, href or poster is part of a path and not an
                     # attribute
-                    if '/src' in split_line[i] or '/href' in split_line[i] or '/poster' in split_line[
-                            i] or 'src/' in split_line[i] or 'href/' in split_line[i] or 'poster/' in split_line[i]:
+                    if '/src' in lower_split_line[i] or '/href' in lower_split_line[i] or '/poster' in lower_split_line[
+                            i] or 'src/' in lower_split_line[i] or 'href/' in lower_split_line[i] or 'poster/' in lower_split_line[i]:
                         continue
                     # print(split_line)
                     # checks if single or double quote is used in line
                     # uses the opposite quote for static tag
-                    used_quote = split_line[i + 1][0]
+                    used_quote = lower_split_line[i + 1][0]
                     if used_quote == '\"':
                         static_quote = "\'"
                     elif used_quote == "\'":
@@ -92,7 +94,7 @@ while True:
                         raise Exception("Unsupported line format")
                     # Treats onclick=location.href attribute specially due to
                     # two quotes
-                    if 'location.href' in split_line[i]:
+                    if 'location.href' in lower_split_line[i]:
                         # changes opening quote used in location.href
                         split_line[i] = used_quote + split_line[i][1:]
                         # quote_idx is the index of location.href closing quote
